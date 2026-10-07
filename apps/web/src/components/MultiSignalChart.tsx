@@ -29,6 +29,32 @@ export const MultiSignalChart: React.FC<MultiSignalChartProps> = ({ data, langua
   const [selectedRange, setSelectedRange] = useState<"6h" | "24h" | "7d" | "30d">("24h");
   const [selectedTrack, setSelectedTrack] = useState<"all" | "hsi" | "impedance" | "acoustic" | "context">("all");
 
+  const displayedData = React.useMemo(() => {
+    if (selectedRange === "6h") {
+      return data.slice(-6);
+    }
+    if (selectedRange === "24h") {
+      return data;
+    }
+    if (selectedRange === "7d") {
+      return [
+        { time: "Day -6", hsi: 14.2, r0Ohms: 1320, rinfOhms: 530, aeHits: 1, dendrometerUm: 168.0, soilMoisturePct: 34.0, vpdKpa: 1.2, tempGapC: 0.1 },
+        { time: "Day -5", hsi: 16.5, r0Ohms: 1345, rinfOhms: 535, aeHits: 2, dendrometerUm: 166.5, soilMoisturePct: 31.5, vpdKpa: 1.4, tempGapC: 0.2 },
+        { time: "Day -4", hsi: 22.8, r0Ohms: 1390, rinfOhms: 545, aeHits: 3, dendrometerUm: 164.0, soilMoisturePct: 28.0, vpdKpa: 1.8, tempGapC: 0.4 },
+        { time: "Day -3", hsi: 34.1, r0Ohms: 1490, rinfOhms: 570, aeHits: 6, dendrometerUm: 161.2, soilMoisturePct: 24.5, vpdKpa: 2.1, tempGapC: 0.7 },
+        { time: "Day -2", hsi: 48.6, r0Ohms: 1620, rinfOhms: 600, aeHits: 11, dendrometerUm: 157.8, soilMoisturePct: 21.0, vpdKpa: 2.5, tempGapC: 1.1 },
+        { time: "Yesterday", hsi: 58.2, r0Ohms: 1710, rinfOhms: 620, aeHits: 16, dendrometerUm: 154.5, soilMoisturePct: 18.2, vpdKpa: 2.8, tempGapC: 1.4 },
+        { time: "Today", hsi: data.length > 0 ? data[data.length - 1].hsi : 64.2, r0Ohms: data.length > 0 ? data[data.length - 1].r0Ohms : 1750, rinfOhms: data.length > 0 ? data[data.length - 1].rinfOhms : 630, aeHits: data.length > 0 ? data[data.length - 1].aeHits : 18, dendrometerUm: data.length > 0 ? data[data.length - 1].dendrometerUm : 153.0, soilMoisturePct: data.length > 0 ? data[data.length - 1].soilMoisturePct : 16.5, vpdKpa: data.length > 0 ? data[data.length - 1].vpdKpa : 3.1, tempGapC: 1.6 },
+      ];
+    }
+    return [
+      { time: "Week 1", hsi: 12.0, r0Ohms: 1300, rinfOhms: 520, aeHits: 1, dendrometerUm: 170.0, soilMoisturePct: 35.0, vpdKpa: 1.1, tempGapC: 0.0 },
+      { time: "Week 2", hsi: 21.5, r0Ohms: 1380, rinfOhms: 540, aeHits: 3, dendrometerUm: 165.0, soilMoisturePct: 29.0, vpdKpa: 1.6, tempGapC: 0.3 },
+      { time: "Week 3", hsi: 42.0, r0Ohms: 1560, rinfOhms: 580, aeHits: 8, dendrometerUm: 159.0, soilMoisturePct: 22.0, vpdKpa: 2.3, tempGapC: 0.9 },
+      { time: "Week 4", hsi: data.length > 0 ? data[data.length - 1].hsi : 62.0, r0Ohms: data.length > 0 ? data[data.length - 1].r0Ohms : 1720, rinfOhms: data.length > 0 ? data[data.length - 1].rinfOhms : 625, aeHits: data.length > 0 ? data[data.length - 1].aeHits : 16, dendrometerUm: 154.0, soilMoisturePct: 17.0, vpdKpa: 2.9, tempGapC: 1.5 },
+    ];
+  }, [data, selectedRange]);
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -64,7 +90,7 @@ export const MultiSignalChart: React.FC<MultiSignalChartProps> = ({ data, langua
               SYNCHRONIZED MULTI-SIGNAL TIME-SERIES
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              24-Hour Continuous
+              {selectedRange === "6h" ? "6 Hours Zoom" : selectedRange === "24h" ? "24-Hour Continuous" : selectedRange === "7d" ? "7-Day Diurnal Cycle" : "30-Day Historical Trend"}
             </span>
           </div>
           <h2 className="text-sm font-semibold text-slate-200 mt-0.5">
@@ -123,7 +149,7 @@ export const MultiSignalChart: React.FC<MultiSignalChartProps> = ({ data, langua
 
           <div className="h-44 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <LineChart data={displayedData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 10 }} />
                 <YAxis domain={[0, 100]} stroke="#64748b" tick={{ fontSize: 10 }} />
@@ -160,7 +186,7 @@ export const MultiSignalChart: React.FC<MultiSignalChartProps> = ({ data, langua
 
           <div className="h-40 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+              <LineChart data={displayedData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 10 }} />
                 <YAxis stroke="#64748b" tick={{ fontSize: 10 }} domain={['auto', 'auto']} />
@@ -202,7 +228,7 @@ export const MultiSignalChart: React.FC<MultiSignalChartProps> = ({ data, langua
 
           <div className="h-36 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={displayedData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 10 }} />
                 <YAxis stroke="#64748b" tick={{ fontSize: 10 }} />
@@ -228,7 +254,7 @@ export const MultiSignalChart: React.FC<MultiSignalChartProps> = ({ data, langua
 
           <div className="h-40 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+              <LineChart data={displayedData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 10 }} />
                 <YAxis yAxisId="left" stroke="#3b82f6" tick={{ fontSize: 10 }} unit="%" />

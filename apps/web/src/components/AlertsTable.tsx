@@ -13,7 +13,8 @@ import {
   Clock,
   Check,
   ShieldCheck,
-  Filter
+  Filter,
+  Download
 } from "lucide-react";
 
 interface AlertsTableProps {
@@ -64,6 +65,29 @@ export const AlertsTable: React.FC<AlertsTableProps> = ({ alerts, language }) =>
     }
   };
 
+  const handleExportCsv = () => {
+    const headers = ["Timestamp", "Plant ID", "Severity", "Title (EN)", "Title (KN)", "Contributing Signals", "Status"];
+    const rows = filteredAlerts.map((a) => [
+      `"${a.timestamp}"`,
+      `"${a.plantId}"`,
+      `"${a.severity}"`,
+      `"${a.titleEn.replace(/"/g, '""')}"`,
+      `"${a.titleKn.replace(/"/g, '""')}"`,
+      `"${a.causeSignals.join("; ")}"`,
+      `"${a.status}"`,
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `phytosense_alerts_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
       {/* Header */}
@@ -82,21 +106,32 @@ export const AlertsTable: React.FC<AlertsTableProps> = ({ alerts, language }) =>
           </h2>
         </div>
 
-        {/* Severity Filter Buttons */}
-        <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs font-mono self-start sm:self-auto">
-          {["ALL", "CRITICAL", "HIGH", "WARNING", "INFO"].map((sev) => (
-            <button
-              key={sev}
-              onClick={() => setFilterSeverity(sev)}
-              className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
-                filterSeverity === sev
-                  ? "bg-slate-800 text-emerald-400 font-semibold"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              {sev}
-            </button>
-          ))}
+        {/* Action Controls: Severity Filter Buttons + CSV Export */}
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          <div className="flex bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-xs font-mono">
+            {["ALL", "CRITICAL", "HIGH", "WARNING", "INFO"].map((sev) => (
+              <button
+                key={sev}
+                onClick={() => setFilterSeverity(sev)}
+                className={`px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                  filterSeverity === sev
+                    ? "bg-slate-800 text-emerald-400 font-semibold"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {sev}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleExportCsv}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono border border-slate-700 transition-colors cursor-pointer"
+            title="Export filtered alerts as CSV"
+          >
+            <Download className="w-3.5 h-3.5 text-teal-400" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 

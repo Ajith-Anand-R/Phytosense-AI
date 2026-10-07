@@ -22,8 +22,8 @@
 | **10** | **Spatial Localization Engine** | Height (N1-N4) & side (A/B) anomaly detection, uncertainty scoring | [ ] Pending | `services/ml/localization.py` |
 | **11** | **Forecasting & Counterfactuals** | 6h/12h/24h/48h best/likely/worst trajectories, irrigation counterfactuals | [ ] Pending | `services/ml/forecasting.py` |
 | **12** | **Alert & Recommendation Engine** | Threshold evaluation, cooldown debouncing, Kannada/English advice | [ ] Pending | `services/api/routers/alerts.py`, `services/ml/recommendation.py` |
-| **13** | **Next.js Web Application** | Farm Mode, Research Mode, 3D Stem Visualizer, Recharts time series | [ ] Pending | `apps/web/app/`, `apps/web/components/` |
-| **14** | **Experiment & Ground Truth Suite**| CSV import/export, 24-seedling research validation dashboard | [ ] Pending | `apps/web/app/experiments/`, `services/api/routers/research.py` |
+| **13** | **Next.js Web Application** | Farm Mode, Research Mode, 3D Stem Visualizer, Recharts time series | [x] Completed | `apps/web/src/app/`, `apps/web/src/components/` |
+| **14** | **Experiment & Ground Truth Suite**| CSV import/export, 24-seedling research validation dashboard | [x] Completed | `apps/web/src/components/ExperimentsView.tsx` |
 
 ---
 
